@@ -24,86 +24,125 @@
 // }
 
 // export default App;
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
-
+const Choice = ["Rock", "Paper", "Scissor"];
 function App() {
-  const [name, setName] = useState("");
-  const [age, setAge] = useState("");
-  const [students, setStudents] = useState([
-    { name: "Default", age: "5" },
-    { name: "Default2", age: "5" },
-  ]);
-  // for (let i = 0; i < students.length; i++) {
-  //   setAvgAge(avgAge + students.age);
-  // }
-
-  const onAddClicked = () => {
-    setStudents([...students, { name, age }]);
-
-    setName("");
-    setAge("");
-  };
-  // const deleteTableRows = (students) => {
-  //   setStudents(students.filter((_, index) => index !==));
+  // const [UserChoice, SetUserChoice] = useState("");
+  // const [PcChoice, SetPcChoice] = useState("");
+  // let UserWinCount = 0;
+  // let PCWinCount = 0;
+  // let Winner = "";
+  // const Choice = ["Rock", "Scissor", "Paper"];
+  // const PcChoiceRandom = Choice[Math.floor(Math.random() * Choice.length)];
+  // const HandleClick = (Action) => {
+  //   SetUserChoice(Action);
+  //   SetPcChoice(PcChoiceRandom);
   // };
-  let average = 0;
-  for (let i = 0; i < students.length; i++) {
-    average += Number(students[i].age);
-  }
+  // console.log(UserChoice, PcChoice);
+  // console.log(UserChoice === "Rock" && PcChoice === "Paper");
+  // if (UserChoice === "Rock" && PcChoice === "Paper") {
+  //   Winner = "PC";
+  //   PCWinCount++;
+  // } else if (UserChoice === "Rock" && PcChoice === "Scissor") {
+  //   Winner = "User";
+  //   UserWinCount++;
+  // } else if (UserChoice === "Rock" && PcChoice === "Rock") {
+  //   Winner = "Draw";
+  // } else {
+  // }
+  const [player1, setPlayer1] = useState("");
+  const [player2, setPlayer2] = useState("");
+  const [result, setResult] = useState("");
+  const [scorePlayer1, setScorePlayer1] = useState(0);
+  const [scorePlayer2, setScorePlayer2] = useState(0);
 
-  const handlesDeleteClick = (studentId) => {
-    const newStudents = [...students];
-    const index = students.findIndex((student) => student.name === studentId);
-
-    newStudents.splice(index, 1);
-    setStudents(newStudents);
+  const onPlayerClick = (option) => {
+    setPlayer1(option);
   };
 
-  return (
-    <div>
-      <input
-        type="text"
-        value={name}
-        onChange={(e) => {
-          setName(e.currentTarget.value);
-        }}
-      />
-      <input
-        type="text"
-        value={age}
-        onChange={(e) => {
-          setAge(e.currentTarget.value);
-        }}
-      />
-      <button onClick={onAddClicked}>Add</button>
+  const onPlayAgain = () => {
+    setPlayer1("");
+    setPlayer2("");
+    setResult("");
+  };
 
-      <table className="foo">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {students.map((student) => (
-            <tr key={student.name}>
-              <td>{student.name}</td>
-              <td>{student.age}</td>
-              <button onClick={() => handlesDeleteClick(student.name)}>
-                Delete
-              </button>
-            </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td>Average Age</td>
-            <td>{average / students.length}</td>
-          </tr>
-        </tfoot>
-      </table>
+  useEffect(() => {
+    if (!!player1) {
+      setPlayer2(Choice[Math.floor(Math.random() * Choice.length)]);
+    }
+  }, [player1]);
+
+  useEffect(() => {
+    if (player1 && player2) {
+      const p1 = Choice.indexOf(player1);
+      const p2 = Choice.indexOf(player2);
+      if (p1 === p2) {
+        setResult("Draw");
+      } else if ((p1 === 0 && p2 === 2) || (p1 === 2 && p2 === 0)) {
+        const isPlayer1Win = p1 === 0 && p2 === 2;
+        setResult(isPlayer1Win ? "Player 1 win" : "Player 2 win");
+        if (isPlayer1Win) {
+          setScorePlayer1((s) => s + 1);
+        } else {
+          setScorePlayer2((s) => s + 1);
+        }
+      } else if (p1 > p2) {
+        setResult("Player 1 win");
+        setScorePlayer1((s) => s + 1);
+      } else {
+        setResult("Player 2 win");
+        setScorePlayer2((s) => s + 1);
+      }
+    }
+  }, [player1, player2]);
+  useEffect(() => {
+    console.log("test");
+  }, []);
+  return (
+    <div className="center">
+      <h1>Rock Paper Scissor</h1>
+      <div className="container">
+        <div>
+          <h3>{!player1 ? "Player 1 turn" : "Computer turn"}</h3>
+        </div>
+        <div style={{ display: "flex" }}>
+          <h4>Player 1 : {scorePlayer1}</h4>
+          <h4>Player 2 : {scorePlayer2}</h4>
+        </div>
+        <div>
+          <h3>{result}</h3>
+        </div>
+        <div style={{ display: "flex" }}>
+          <div>
+            <h4>Player 1 choose : {player1}</h4>
+          </div>
+          <div>
+            <h4>Player 2 choose : {player2}</h4>
+          </div>
+        </div>
+        <div>
+          <button onClick={() => onPlayerClick("Rock")}>Rock</button>
+          <button onClick={() => onPlayerClick("Scissor")}>Scissor</button>
+          <button onClick={() => onPlayerClick("Paper")}>Paper</button>
+        </div>
+        <button onClick={onPlayAgain}>Play Again</button>
+        {/* <div>
+          <div className="player">Player 1 :{UserWinCount}</div>
+        </div>
+        <div>
+          <div className="player">Player 2 :{PCWinCount}</div>
+        </div> */}
+      </div>
+      {/* <div>
+        <button onClick={() => console.log("test")}>Rock</button>
+        <button onClick={() => HandleClick("Scissor")}>Scissor</button>
+        <button onClick={() => HandleClick("Paper")}>Paper</button>
+      </div>
+      <div>Player 1 Choose {UserChoice}</div>
+      <div>Player 2 Choose {PcChoice}</div>
+
+      <div>Winner is {Winner}</div> */}
     </div>
   );
 }

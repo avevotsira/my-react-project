@@ -1,4 +1,4 @@
-.foo {
+/* .foo {
   border: 1px solid #000;
   border-collapse: collapse;
   margin: 20px;
@@ -11,4 +11,22 @@
 
 tfoot td {
   background-color: #888
+} */
+.center{
+  text-align: center;
+}
+.container{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  vertical-align: center;
+
+}
+.player{
+  text-align: center;
+  margin: 10px;
+  width: 120px;
+  height: 120px;
+  display: flex;
+
 }
