@@ -1,150 +1,117 @@
-// import "./App.css";
-// import { useState } from "react";
-
-// function Spoiler({ text }: { text: string }) {
-//   return <span>{text}</span>;
-// }
-
-// function App() {
-//   const [count, setCount] = useState(0);
-//   const onHitMeClicked = () => {
-//     setCount(count + 1);
-//   };
-
-//   return (
-//     <div>
-//       <p style={{ color: count > 10 ? "red" : "black" }}>
-//         You have hit me {count} time
-//       </p>
-//       <div>
-//         <button onClick={onHitMeClicked}>Hit me</button>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default App;
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./App.css";
-const Choice = ["Rock", "Paper", "Scissor"];
-function App() {
-  // const [UserChoice, SetUserChoice] = useState("");
-  // const [PcChoice, SetPcChoice] = useState("");
-  // let UserWinCount = 0;
-  // let PCWinCount = 0;
-  // let Winner = "";
-  // const Choice = ["Rock", "Scissor", "Paper"];
-  // const PcChoiceRandom = Choice[Math.floor(Math.random() * Choice.length)];
-  // const HandleClick = (Action) => {
-  //   SetUserChoice(Action);
-  //   SetPcChoice(PcChoiceRandom);
-  // };
-  // console.log(UserChoice, PcChoice);
-  // console.log(UserChoice === "Rock" && PcChoice === "Paper");
-  // if (UserChoice === "Rock" && PcChoice === "Paper") {
-  //   Winner = "PC";
-  //   PCWinCount++;
-  // } else if (UserChoice === "Rock" && PcChoice === "Scissor") {
-  //   Winner = "User";
-  //   UserWinCount++;
-  // } else if (UserChoice === "Rock" && PcChoice === "Rock") {
-  //   Winner = "Draw";
-  // } else {
-  // }
-  const [player1, setPlayer1] = useState("");
-  const [player2, setPlayer2] = useState("");
-  const [result, setResult] = useState("");
-  const [scorePlayer1, setScorePlayer1] = useState(0);
-  const [scorePlayer2, setScorePlayer2] = useState(0);
 
-  const onPlayerClick = (option) => {
-    setPlayer1(option);
-  };
+function Board() {
+  const [squares, setSquares] = React.useState(Array(9).fill(null));
+  const [XWinCount, SetXWinCount] = useState(0);
+  const [OWinCount, SetOWinCount] = useState(0);
+  const [winner, setWinner] = useState(null);
 
-  const onPlayAgain = () => {
-    setPlayer1("");
-    setPlayer2("");
-    setResult("");
-  };
+  const nextValue = calculateNextValue(squares);
+  const status = calculateStatus(winner, squares, nextValue);
 
-  useEffect(() => {
-    if (!!player1) {
-      setPlayer2(Choice[Math.floor(Math.random() * Choice.length)]);
+  function selectSquare(square) {
+    if (winner || squares[square]) {
+      return;
     }
-  }, [player1]);
 
-  useEffect(() => {
-    if (player1 && player2) {
-      const p1 = Choice.indexOf(player1);
-      const p2 = Choice.indexOf(player2);
-      if (p1 === p2) {
-        setResult("Draw");
-      } else if ((p1 === 0 && p2 === 2) || (p1 === 2 && p2 === 0)) {
-        const isPlayer1Win = p1 === 0 && p2 === 2;
-        setResult(isPlayer1Win ? "Player 1 win" : "Player 2 win");
-        if (isPlayer1Win) {
-          setScorePlayer1((s) => s + 1);
-        } else {
-          setScorePlayer2((s) => s + 1);
-        }
-      } else if (p1 > p2) {
-        setResult("Player 1 win");
-        setScorePlayer1((s) => s + 1);
-      } else {
-        setResult("Player 2 win");
-        setScorePlayer2((s) => s + 1);
-      }
+    const squaresCopy = [...squares];
+    squaresCopy[square] = nextValue;
+
+    const hasWinner = calculateWinner(squaresCopy);
+    if (hasWinner) {
+      setWinner(hasWinner);
+      if (hasWinner === "X") SetXWinCount(XWinCount + 1);
+      else SetOWinCount(OWinCount + 1);
     }
-  }, [player1, player2]);
-  useEffect(() => {
-    console.log("test");
-  }, []);
+
+    setSquares(squaresCopy);
+  }
+
+  function restart() {
+    setSquares(Array(9).fill(null));
+    setWinner(null);
+  }
+
+  function renderSquare(i) {
+    return (
+      <button className="square" onClick={() => selectSquare(i)}>
+        {squares[i]}
+      </button>
+    );
+  }
+
   return (
-    <div className="center">
-      <h1>Rock Paper Scissor</h1>
-      <div className="container">
-        <div>
-          <h3>{!player1 ? "Player 1 turn" : "Computer turn"}</h3>
-        </div>
-        <div style={{ display: "flex" }}>
-          <h4>Player 1 : {scorePlayer1}</h4>
-          <h4>Player 2 : {scorePlayer2}</h4>
-        </div>
-        <div>
-          <h3>{result}</h3>
-        </div>
-        <div style={{ display: "flex" }}>
-          <div>
-            <h4>Player 1 choose : {player1}</h4>
-          </div>
-          <div>
-            <h4>Player 2 choose : {player2}</h4>
-          </div>
-        </div>
-        <div>
-          <button onClick={() => onPlayerClick("Rock")}>Rock</button>
-          <button onClick={() => onPlayerClick("Scissor")}>Scissor</button>
-          <button onClick={() => onPlayerClick("Paper")}>Paper</button>
-        </div>
-        <button onClick={onPlayAgain}>Play Again</button>
-        {/* <div>
-          <div className="player">Player 1 :{UserWinCount}</div>
-        </div>
-        <div>
-          <div className="player">Player 2 :{PCWinCount}</div>
-        </div> */}
+    <div>
+      <div className="status">{status}</div>
+      <div>X Win Count:{XWinCount}</div>
+      <div>O Win Count:{OWinCount}</div>
+      <div className="board-row">
+        {renderSquare(0)}
+        {renderSquare(1)}
+        {renderSquare(2)}
       </div>
-      {/* <div>
-        <button onClick={() => console.log("test")}>Rock</button>
-        <button onClick={() => HandleClick("Scissor")}>Scissor</button>
-        <button onClick={() => HandleClick("Paper")}>Paper</button>
+      <div className="board-row">
+        {renderSquare(3)}
+        {renderSquare(4)}
+        {renderSquare(5)}
       </div>
-      <div>Player 1 Choose {UserChoice}</div>
-      <div>Player 2 Choose {PcChoice}</div>
-
-      <div>Winner is {Winner}</div> */}
+      <div className="board-row">
+        {renderSquare(6)}
+        {renderSquare(7)}
+        {renderSquare(8)}
+      </div>
+      <button className="restart" onClick={restart}>
+        restart
+      </button>
     </div>
   );
+}
+
+function Game() {
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board />
+      </div>
+    </div>
+  );
+}
+
+function calculateStatus(winner, squares, nextValue) {
+  return winner
+    ? `Winner: ${winner}`
+    : squares.every(Boolean)
+    ? `Scratch: Cat's game`
+    : `Next player: ${nextValue}`;
+}
+
+function calculateNextValue(squares) {
+  return squares.filter(Boolean).length % 2 === 0 ? "X" : "O";
+}
+
+function calculateWinner(squares) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+  return null;
+}
+
+function App() {
+  return <Game />;
 }
 
 export default App;
