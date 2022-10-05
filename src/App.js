@@ -1,117 +1,66 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 
-function Board() {
-  const [squares, setSquares] = React.useState(Array(9).fill(null));
-  const [XWinCount, SetXWinCount] = useState(0);
-  const [OWinCount, SetOWinCount] = useState(0);
-  const [winner, setWinner] = useState(null);
-
-  const nextValue = calculateNextValue(squares);
-  const status = calculateStatus(winner, squares, nextValue);
-
-  function selectSquare(square) {
-    if (winner || squares[square]) {
-      return;
-    }
-
-    const squaresCopy = [...squares];
-    squaresCopy[square] = nextValue;
-
-    const hasWinner = calculateWinner(squaresCopy);
-    if (hasWinner) {
-      setWinner(hasWinner);
-      if (hasWinner === "X") SetXWinCount(XWinCount + 1);
-      else SetOWinCount(OWinCount + 1);
-    }
-
-    setSquares(squaresCopy);
-  }
-
-  function restart() {
-    setSquares(Array(9).fill(null));
-    setWinner(null);
-  }
-
-  function renderSquare(i) {
-    return (
-      <button className="square" onClick={() => selectSquare(i)}>
-        {squares[i]}
-      </button>
-    );
-  }
-
-  return (
-    <div>
-      <div className="status">{status}</div>
-      <div>X Win Count:{XWinCount}</div>
-      <div>O Win Count:{OWinCount}</div>
-      <div className="board-row">
-        {renderSquare(0)}
-        {renderSquare(1)}
-        {renderSquare(2)}
-      </div>
-      <div className="board-row">
-        {renderSquare(3)}
-        {renderSquare(4)}
-        {renderSquare(5)}
-      </div>
-      <div className="board-row">
-        {renderSquare(6)}
-        {renderSquare(7)}
-        {renderSquare(8)}
-      </div>
-      <button className="restart" onClick={restart}>
-        restart
-      </button>
-    </div>
-  );
-}
-
-function Game() {
-  return (
-    <div className="game">
-      <div className="game-board">
-        <Board />
-      </div>
-    </div>
-  );
-}
-
-function calculateStatus(winner, squares, nextValue) {
-  return winner
-    ? `Winner: ${winner}`
-    : squares.every(Boolean)
-    ? `Scratch: Cat's game`
-    : `Next player: ${nextValue}`;
-}
-
-function calculateNextValue(squares) {
-  return squares.filter(Boolean).length % 2 === 0 ? "X" : "O";
-}
-
-function calculateWinner(squares) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
-  return null;
+function create2dArray(n, m) {
+  return new Array(n).fill().map((_) => new Array(m).fill(false));
 }
 
 function App() {
-  return <Game />;
+  // 15 x 20
+  const [grid, setGrid] = useState(create2dArray(15, 20));
+  const [IsActivated, setIsActivate] = useState(false);
+
+  const onClick = (r, c) => {
+    const list = [...grid];
+    if (IsActivated) {
+      list[r][c] = IsActivated;
+      setGrid(list);
+    }
+  };
+  console.log("hello", grid);
+
+  const handlesClear = () => {
+    setGrid(create2dArray(15, 20));
+    if (IsActivated) {
+      setIsActivate((e) => !e);
+    }
+  };
+  const handlesClick = () => {
+    setIsActivate((e) => !e);
+  };
+  const color = {
+    color: IsActivated ? "White" : "",
+    background: IsActivated ? "Black" : "",
+  };
+  return (
+    <div>
+      <table className="foo">
+        <tbody>
+          {grid.map((row, r) => (
+            <tr key={r}>
+              {row.map((column, c) => (
+                <td
+                  key={c}
+                  onClick={() => onClick(r, c)}
+                  style={{ backgroundColor: column ? "black" : "white" }}
+                >
+                  {column}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div>
+        <button onClick={handlesClick} style={color}>
+          Button
+        </button>
+      </div>
+      <div>
+        <button onClick={handlesClear}>Clear</button>
+      </div>
+    </div>
+  );
 }
 
 export default App;
