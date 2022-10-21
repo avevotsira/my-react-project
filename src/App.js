@@ -5,180 +5,186 @@ function create2dArray(n, m) {
   return new Array(n).fill().map((_) => new Array(m).fill(false));
 }
 
+// 0 = Empty Space
+// 1 = Wall
+// 2 = Source
+// 3 = Destination
+const EMPTY_SPACE = 0;
+const WALL = 1;
+const SOURCE = 2;
+const DESTINATION = 3;
+
+const CELL_COLOR = ["#eeeeee", "#000000", "#ff0000", "#0000ff"];
+
+function createInitialMap() {
+  return [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ];
+}
+
+function createDummyRoute() {
+  return [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [4, 1, 0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [4, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ];
+}
+
+function GameMap({ grid, onClick, route }) {
+  return (
+    <table>
+      <tbody>
+        {grid.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((column, columnIndex) => {
+              let bgColor = CELL_COLOR[column];
+              if (
+                route[rowIndex][columnIndex] === 4 &&
+                column === EMPTY_SPACE
+              ) {
+                bgColor = "#0f0";
+              }
+
+              return (
+                <td
+                  key={columnIndex}
+                  style={{
+                    background: bgColor,
+                    height: 20,
+                    width: 20,
+                  }}
+                  onClick={() => onClick(rowIndex, columnIndex)}
+                ></td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function findValueInGrid(grid, value) {
+  for (let sy = 0; sy < grid.length; sy++) {
+    for (let sx = 0; sx < grid[sy].length; sx++) {
+      if (grid[sy][sx] === value) return { x: sx, y: sy };
+    }
+  }
+
+  return null;
+}
+
+function pushToQueue(grid, q, x, y, px, py) {
+  if (x < 0) return;
+  if (y < 0) return;
+  if (x >= grid[0].length) return;
+  if (y >= grid.length) return;
+  if (grid[y][x] === WALL) return;
+  if (typeof grid[y][x] === "object") return;
+
+  grid[y][x] = { x: px, y: py };
+  q.push({ x, y });
+}
+
+function findRoute(grid) {
+  // where is the source location
+  // where is the destination location
+  const srcLocation = findValueInGrid(grid, SOURCE);
+  const destLocation = findValueInGrid(grid, DESTINATION);
+
+  if (!srcLocation || !destLocation) return;
+
+  const copyGrid = grid.map((row) => [...row]);
+
+  const q = [];
+  pushToQueue(copyGrid, q, srcLocation.x, srcLocation.y, null, null);
+
+  while (q.length > 0) {
+    const pop = q.shift();
+    if (pop.x === destLocation.x && pop.y === destLocation.y) break;
+    pushToQueue(copyGrid, q, pop.x + 1, pop.y, pop.x, pop.y);
+    pushToQueue(copyGrid, q, pop.x - 1, pop.y, pop.x, pop.y);
+    pushToQueue(copyGrid, q, pop.x, pop.y + 1, pop.x, pop.y);
+    pushToQueue(copyGrid, q, pop.x, pop.y - 1, pop.x, pop.y);
+  }
+
+  let ptr = destLocation;
+  while (ptr.y !== null) {
+    const tmp = copyGrid[ptr.y][ptr.x];
+    copyGrid[ptr.y][ptr.x] = 4;
+    ptr = tmp;
+  }
+
+  return copyGrid;
+}
+
 function App() {
-  // 15 x 20
+  const [grid, setGrid] = useState(createInitialMap());
+  const [editMode, setEditMode] = useState(WALL);
+  const [route, setRoute] = useState(
+    create2dArray(grid.length, grid[0].length)
+  );
 
-  const [IsActivated, SetIsActivate] = useState(false);
-  const [IsSrc, SetIsSrc] = useState(false);
-  const [IsDsc, SetIsDsc] = useState(false);
-  const [IsFindPath, SetIsFindPath] = useState(false);
-
-  const [grid, setGrid] = useState(create2dArray(15, 20));
-  const [color, setColor] = useState("");
-  const [isSource, setIsSource] = useState(false);
-  const [isDestination, setIsDestination] = useState(false);
-
-  const onClick = (r, c) => {
-    const list = [...grid];
-    console.log("Row" + r, "Column:" + c);
-    console.log(list[14][19]);
-    console.log(list);
-    const box = list[r][c];
-    if (!box && color) {
-      list[r][c] = color;
-      setGrid(list);
-
-      if (color === "red") {
-        setIsSource(true);
-        if (isDestination) {
-          SetIsFindPath(true);
-        }
+  const onCellClicked = (y, x) => {
+    if (editMode === WALL || editMode === EMPTY_SPACE) {
+      grid[y][x] = editMode;
+      setGrid([...grid]);
+    } else if (editMode === SOURCE || editMode === DESTINATION) {
+      const found = findValueInGrid(grid, editMode);
+      if (found) {
+        grid[found.y][found.x] = EMPTY_SPACE;
       }
-      if (color === "blue") {
-        setIsDestination(true);
-        if (isSource) {
-          SetIsFindPath(true);
-        }
-      }
-
-      color !== "black" && setColor("");
-    }
-  };
-  const find2d = (grid, item) => {
-    let ix = 0,
-      col = -1;
-    while (ix < grid.length && (col = grid[ix].indexOf(item)) === -1) ix++;
-    return ix === grid.length ? undefined : [ix, col];
-  };
-
-  const handlesClear = () => {
-    setGrid(create2dArray(15, 20));
-    if (IsActivated || IsSrc || IsDsc) {
-      SetIsActivate(false);
-      SetIsSrc(false);
-      SetIsDsc(false);
-      setIsDestination(false);
-      setIsSource(false);
-      SetIsFindPath(false);
-    }
-  };
-  const handlesWall = () => {
-    SetIsActivate((e) => !e);
-    if (IsSrc || IsDsc) {
-      SetIsDsc(false);
-      SetIsSrc(false);
-    }
-  };
-  const handlesSrc = () => {
-    SetIsSrc((e) => !e);
-    if (IsDsc || IsActivated) {
-      SetIsActivate(false);
-      SetIsDsc(false);
-    }
-  };
-  const handlesDsc = () => {
-    SetIsDsc((e) => !e);
-
-    if (IsSrc || IsActivated) {
-      SetIsActivate(false);
-      SetIsSrc(false);
+      grid[y][x] = editMode;
+      setGrid([...grid]);
     }
   };
 
-  const HandleFindpath = () => {
-    let list = [...grid];
-    let src = find2d(list, "red");
-    let r = src[0];
-    let c = src[1];
-    //let dst = find2d(list, "blue");
-
-    function move(r, c) {
-      if (list[r][c] === "blue") {
-        console.log("SRC to Dst is Possible");
-        alert("The Src => Dst is possible");
-      } else if (list[r][c] !== "black" && list[r][c] !== "v") {
-        console.log("Valid position at colum:", c, "row", r);
-        list[r][c] = "v";
-      }
-
-      //list[r].length is 20
-      if (c < list[r].length - 1) {
-        move(r, c + 1);
-      }
-      //list.length is 15
-      if (r < list.length - 1) {
-        move(r + 1, c);
-      }
-
-      if (r === 14 && list[r - 1][c] !== "v") {
-        move(r - 1, c);
-      }
-      if (c === 19 && list[r][c - 1] !== "v") {
-        move(r, c - 1);
-      }
-    }
-    move(r, c);
+  const onRouteClicked = () => {
+    setRoute(findRoute(grid));
   };
+
   return (
     <div>
-      <table className="foo">
-        <tbody>
-          {grid.map((row, r) => (
-            <tr key={r}>
-              {row.map((column, c) => (
-                <td
-                  key={c}
-                  onClick={() => onClick(r, c)}
-                  style={{ backgroundColor: column || "white" }}
-                ></td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <GameMap grid={grid} onClick={onCellClicked} route={route} />
       <div>
-        <button
-          onClick={() => {
-            setColor("black");
-            handlesWall();
-          }}
-          style={{
-            color: IsActivated ? "White" : "",
-            background: IsActivated ? "Black" : "",
-          }}
-        >
-          Wall
-        </button>
-        <button onClick={handlesClear}>Clear</button>
-        {!isSource && (
+        {[
+          ["Empty Space", EMPTY_SPACE],
+          ["Wall", WALL],
+          ["Source", SOURCE],
+          ["Destination", DESTINATION],
+        ].map(([buttonName, buttonMode]) => (
           <button
-            onClick={() => {
-              setColor("red");
-              handlesSrc();
-            }}
+            key={buttonMode}
             style={{
-              color: IsSrc ? "White" : "",
-              background: IsSrc ? "Black" : "",
+              background: editMode === buttonMode ? "#e00" : undefined,
+              color: editMode === buttonMode ? "#fff" : undefined,
             }}
+            onClick={() => setEditMode(buttonMode)}
           >
-            Src
+            {buttonName}
           </button>
-        )}
-        {!isDestination && (
-          <button
-            onClick={() => {
-              setColor("blue");
-              handlesDsc();
-            }}
-            style={{
-              color: IsDsc ? "White" : "",
-              background: IsDsc ? "Black" : "",
-            }}
-          >
-            Dst
-          </button>
-        )}
-        {IsFindPath && <button onClick={HandleFindpath}>Find Path</button>}
+        ))}
+        <button onClick={onRouteClicked}>Find route</button>
       </div>
     </div>
   );
