@@ -112,7 +112,7 @@ function findRoute(grid) {
   const srcLocation = findValueInGrid(grid, SOURCE);
   const destLocation = findValueInGrid(grid, DESTINATION);
 
-  if (!srcLocation || !destLocation) return;
+  if (!srcLocation && !destLocation) return;
 
   const copyGrid = grid.map((row) => [...row]);
 
@@ -129,12 +129,14 @@ function findRoute(grid) {
   }
 
   let ptr = destLocation;
+  console.log("ptr", ptr);
   while (ptr.y !== null) {
+    console.log(ptr.y, ptr.x);
     const tmp = copyGrid[ptr.y][ptr.x];
     copyGrid[ptr.y][ptr.x] = 4;
     ptr = tmp;
   }
-
+  console.log(copyGrid);
   return copyGrid;
 }
 
